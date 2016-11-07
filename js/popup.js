@@ -30,6 +30,11 @@
           if (!self.data) {
             self.data = data;
           }
+          function randomInteger(min, max) {
+            var rand = min + Math.random() * (max + 1 - min);
+            rand = Math.floor(rand);
+            return rand;
+          };
 
           function getData() {
             return Date.now();
@@ -40,7 +45,8 @@
           }
           document.addEventListener('mousemove', resetTimer);
           var initialTime = getData();
-          var maxDelay = self.data.config.delayInterval;
+          var maxDelay = randomInteger(self.data.config.delayInterval.min, self.data.config.delayInterval.max) * 1000;
+          console.log('Current delay interval ', maxDelay);
           var timer = setInterval(timerIncrease, 1000);
           var currentTime;
 
@@ -63,7 +69,7 @@
             return rand;
           };
           // console.log(self.data.config.pauseIntervalMin, self.data.config.pauseIntervalMax);
-          var pause = randomInteger(self.data.config.pauseIntervalMin, self.data.config.pauseIntervalMax);
+          var pause = randomInteger(self.data.config.pauseInterval.min, self.data.config.pauseInterval.max) * 1000;
           console.log('Pause between videos ', pause)
           setTimeout(function() {
             self.playVideo()
