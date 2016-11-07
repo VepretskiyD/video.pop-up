@@ -57,10 +57,17 @@
         },
         next: function() {
           var self = this;
-          console.log('Pause between videos ', self.data.config.pauseInterval)
+          function randomInteger(min, max) {
+            var rand = min + Math.random() * (max + 1 - min);
+            rand = Math.floor(rand);
+            return rand;
+          };
+          // console.log(self.data.config.pauseIntervalMin, self.data.config.pauseIntervalMax);
+          var pause = randomInteger(self.data.config.pauseIntervalMin, self.data.config.pauseIntervalMax);
+          console.log('Pause between videos ', pause)
           setTimeout(function() {
             self.playVideo()
-          }, self.data.config.pauseInterval);
+          }, pause);
         },
         playVideo: function() {
           var self = this;
@@ -117,7 +124,7 @@
             videoInner.style.margin = 'auto';
             var close = document.createElement('img');
             close.src = "img/close.png";
-            close.style.cssText = "position: absolute; top: 10px; right: 10px; width: 150px; height: 150px; z-index: 999; cursor: pointer;"
+            close.style.cssText = "position: absolute; top: 10px; right: 10px; width: 128px; height: 128px; z-index: 999; cursor: pointer;"
             close.addEventListener('click', function() {
               self.reset(self);
             });
@@ -138,7 +145,7 @@
           return self.player;
         },
         reset: function(self) {
-          console.log('reset', self);
+          console.log('reset');
           self.current.player.dispose();
           self.player.wrapper.style.display = 'none';
           self.current = {};
@@ -154,7 +161,7 @@
             "fluid": true
           }, function() {
             var close = playerHtml.close;
-            console.log(playerHtml);
+            // console.log(playerHtml);
             player.src({
               type: response.type,
               src: URL.createObjectURL(response)
