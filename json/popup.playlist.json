@@ -1,5 +1,22 @@
 [
-  "video/SampleVideo_1280x720_1mb.mp4",
-  "video/SampleVideo_1280x720_2mb.mp4",
-  "video/SampleVideo_1280x720_5mb.mp4"
+  {
+    "url": "video/dj-techno-music-club-disco-party-1257.mp4",
+    "actionLink": "https://videos.pexels.com/videos/dj-techno-music-club-disco-party-1257/"
+  },
+  {
+    "url": "video/city-at-night-timealpse-video-518.mp4",
+    "actionLink": "https://videos.pexels.com/videos/city-at-night-timealpse-video-518"
+  },
+  {
+    "url": "video/video-of-moderate-traffic-in-the-city-1128.mp4",
+    "actionLink": "https://videos.pexels.com/videos/video-of-moderate-traffic-in-the-city-1128"
+  },
+  {
+    "url": "video/aerial-shot-of-lighthouse-1241.mp4",
+    "actionLink": "https://videos.pexels.com/videos/aerial-shot-of-lighthouse-1241"
+  },
+  {
+    "url": "video/video-of-race-car-passing-by-1242.mp4",
+    "actionLink": "https://videos.pexels.com/videos/video-of-race-car-passing-by-1242"
+  }
 ]

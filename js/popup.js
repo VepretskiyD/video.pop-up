@@ -22,15 +22,14 @@
         xhr.send();
       });
     }
-    // Timer with Promise wrapper
-    function delay(interval) {
-
-    }
     // Popup object
     var popup = {
+        current: {},
         init: function(data) {
           var self = this;
-          self.data = data;
+          if (!self.data) {
+            self.data = data;
+          }
 
           function getData() {
             return Date.now();
@@ -73,10 +72,15 @@
                 var playerHtml = self.insertPlayer();
                 playerHtml.wrapper.style.display = 'flex';
                 self.videoInit(response, playerHtml, self);
+              },
+              function(error) {
+                console.log('Error source video loading. Trying next from the list');
+                self.next();
               }
             )
         },
         getUrlFromPlaylist: function(isRandom, playlist) {
+          var self = this;
           function randomInteger(min, max) {
             var rand = min + Math.random() * (max + 1 - min);
             rand = Math.floor(rand);
@@ -88,19 +92,21 @@
             if (isRandom) {
               do {
                 currentNum = randomInteger(0, playlist.length - 1);
-              } while (currentNum === self.currentNum);
+              } while (currentNum === self.current.num);
             } else {
-              currentNum = self.currentNum + 1 < playlist.length ? self.currentNum + 1 : 0;
+              currentNum = self.current.num + 1 < playlist.length ? self.current.num + 1 : 0;
             }
           } else {
             currentNum = 0;
           }
-          self.currentNum = currentNum;
-          self.currentUrl = playlist[currentNum];
-          console.log('Now is playing video number = ', self.currentNum + 1, ' by url: ', self.currentUrl);
-          return self.currentUrl;
+          self.current.num = currentNum;
+          self.current.url = playlist[currentNum].url;
+          self.current.actionLink = playlist[currentNum].actionLink;
+          console.log('Now is playing video number = ', self.current.num + 1, ' by url: ', self.current.url, ' and action link = ', self.current.actionLink);
+          return self.current.url;
         },
         insertPlayer: function() {
+          var self = this;
           if (!self.player) {
             var videoWrapper = document.createElement('div');
             videoWrapper.style.cssText = 'display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; padding: 0; background-color: black;';
@@ -109,19 +115,34 @@
             videoInner.id = 'video__inner';
             videoInner.style.width = '100%';
             videoInner.style.margin = 'auto';
+            var close = document.createElement('img');
+            close.src = "img/close.png";
+            close.style.cssText = "position: absolute; top: 10px; right: 10px; width: 150px; height: 150px; z-index: 999; cursor: pointer;"
+            close.addEventListener('click', function() {
+              self.reset(self);
+            });
             videoWrapper.appendChild(videoInner);
+            videoWrapper.appendChild(close);
             self.player = {
               'wrapper': videoWrapper,
-              'inner': videoInner
+              'inner': videoInner,
+              'close': close
             }
+            document.body.appendChild(self.player.wrapper);
           }
           var video = document.createElement('video');
           video.className = 'video-js vjs-default-skin';
           video.id = 'my-video';
           self.player.video = video;
           self.player.inner.appendChild(self.player.video);
-          document.body.appendChild(self.player.wrapper);
           return self.player;
+        },
+        reset: function(self) {
+          console.log('reset', self);
+          self.current.player.dispose();
+          self.player.wrapper.style.display = 'none';
+          self.current = {};
+          self.init();
         },
         videoInit: function(response, playerHtml, self) {
           var player = videojs('my-video', {
@@ -132,26 +153,35 @@
             "preload": "auto",
             "fluid": true
           }, function() {
+            var close = playerHtml.close;
+            console.log(playerHtml);
             player.src({
               type: response.type,
               src: URL.createObjectURL(response)
             });
             player.enterFullWindow();
             player.play();
-            player.on('ended', function() {
-              console.log('end');
+            function playerDestroy() {
               player.dispose();
               playerHtml.wrapper.style.display = 'none';
+            }
+            player.on('ended', function() {
+              console.log('end');
+              playerDestroy()
               self.next();
             })
             player.on('click', function() {
               console.log('click');
-              player.dispose();
-              playerHtml.wrapper.style.display = 'none';
-              window.location = self.data.config.actionLink;
-            })
+              playerDestroy()
+              window.location = self.current.actionLink;
+            });
+            player.on('error', function() {
+              playerDestroy()
+              console.log('Error loading source. Trying next from list');
+              self.next();
+            });
           })
-
+          self.current.player = player;
         }
       }
       // Chained calls for config and playlist JSON
