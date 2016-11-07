@@ -1,0 +1,7 @@
+{
+  "playlistUrl": "json/popup.playlist.json",
+  "actionLink": "http://www.example.com",
+  "delayInterval": "10000",
+  "pauseInterval": "4000",
+  "isRandom": true
+}
