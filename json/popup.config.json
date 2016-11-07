@@ -7,6 +7,5 @@
   "pauseInterval": {
     "min": 1,
     "max": 5
-  },
-  "isRandom": true
+  }
 }

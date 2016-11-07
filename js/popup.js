@@ -57,7 +57,7 @@
               initialTime = getData();
               clearInterval(timer);
               document.removeEventListener('mousemove', resetTimer);
-              self.playVideo();
+              self.playVideo(true);
             }
           }
         },
@@ -72,12 +72,12 @@
           var pause = randomInteger(self.data.config.pauseInterval.min, self.data.config.pauseInterval.max) * 1000;
           console.log('Pause between videos ', pause)
           setTimeout(function() {
-            self.playVideo()
+            self.playVideo(false);
           }, pause);
         },
-        playVideo: function() {
+        playVideo: function(isRandom) {
           var self = this;
-          var currentUrl = self.getUrlFromPlaylist(self.data.config.isRandom, self.data.playlist);
+          var currentUrl = self.getUrlFromPlaylist(isRandom, self.data.playlist);
           httpGet(currentUrl, 'blob')
             .then(
               function(response) {
@@ -100,14 +100,17 @@
             return rand;
           }
           var currentNum;
+          var currentStartNum;
           var currentUrl;
           if (playlist.length > 1) {
             if (isRandom) {
-              do {
                 currentNum = randomInteger(0, playlist.length - 1);
-              } while (currentNum === self.current.num);
+                self.current.startNum = currentNum;
+                self.current.count = 0;
             } else {
-              currentNum = self.current.num + 1 < playlist.length ? self.current.num + 1 : 0;
+                self.current.count += 1;
+                currentNum = self.current.count + self.current.startNum < playlist.length ? self.current.count + self.current.startNum : self.current.count + self.current.startNum - playlist.length;
+                // console.log('after', currentNum, self.current.count)
             }
           } else {
             currentNum = 0;
@@ -180,8 +183,13 @@
             }
             player.on('ended', function() {
               console.log('end');
-              playerDestroy()
-              self.next();
+              if (self.current.count < self.data.playlist.length - 1) {
+                playerDestroy()
+                self.next();
+              } else {
+                console.log('playlist ended')
+                self.reset(self);
+              }
             })
             player.on('click', function() {
               console.log('click');
