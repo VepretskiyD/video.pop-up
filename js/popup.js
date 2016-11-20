@@ -153,6 +153,36 @@
           self.player.inner.appendChild(self.player.video);
           return self.player;
         },
+        checkPlaylist: function() {
+          console.log('Checking playlist update');
+          var self = this;
+          var playlist = [];
+          var currentPlaylist = self.data.playlist;
+          var compare;
+          console.log(currentPlaylist)
+          httpGet(self.data.config.playlistUrl)
+            .then(
+              function(response) {
+                playlist = JSON.parse(response);
+                console.log(playlist);
+                if (playlist.length) {
+                  compare = JSON.stringify(playlist) === JSON.stringify(currentPlaylist);
+                  if (!compare) {
+                    console.log("Switching to the updated playlist", playlist);
+                    self.data.playlist = playlist;
+                  }
+                } else {
+                  throw 'Error: Playlist is empty!';
+                }
+                self.reset(self);
+              },
+              function(error) {
+                console.log('Error loading playlist update');
+                self.reset(self);
+                throw error;
+              }
+            )
+        },
         reset: function(self) {
           console.log('reset');
           self.current.player.dispose();
@@ -187,8 +217,9 @@
                 playerDestroy()
                 self.next();
               } else {
-                console.log('playlist ended')
-                self.reset(self);
+                console.log('playlist ended');
+                self.checkPlaylist();
+                // self.reset(self);
               }
             })
             player.on('click', function() {
